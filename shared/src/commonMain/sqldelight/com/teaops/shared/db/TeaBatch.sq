@@ -1,0 +1,46 @@
+CREATE TABLE TeaBatch (
+  id TEXT NOT NULL PRIMARY KEY,
+  type TEXT NOT NULL,
+  weight REAL NOT NULL,
+  harvested_at INTEGER NOT NULL,
+  current_step_id TEXT,
+  current_step_name TEXT,
+  target_temperature REAL,
+  duration INTEGER
+);
+
+selectAllBatches:
+SELECT * FROM TeaBatch;
+
+upsertBatch:
+INSERT OR REPLACE INTO TeaBatch(
+  id,
+  type,
+  weight,
+  harvested_at,
+  current_step_id,
+  current_step_name,
+  target_temperature,
+  duration
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateBatchStep:
+UPDATE TeaBatch
+SET current_step_id = ?,
+    current_step_name = ?,
+    target_temperature = ?,
+    duration = ?
+WHERE id = ?;
+
+CREATE TABLE PendingSync (
+  batch_id TEXT NOT NULL PRIMARY KEY
+);
+
+selectPendingSyncIds:
+SELECT batch_id FROM PendingSync;
+
+insertPendingSync:
+INSERT OR REPLACE INTO PendingSync(batch_id) VALUES (?);
+
+deletePendingSync:
+DELETE FROM PendingSync WHERE batch_id = ?;

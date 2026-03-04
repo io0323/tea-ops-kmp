@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.TemperatureTrend
 
 /**
  * 生産監視画面のUI状態。
@@ -49,7 +50,9 @@ data class ProductionMonitorUiState(
   val delayLabel: String,
   val operationAlertTitle: String,
   val operationAlertDetail: String,
-  val operationAlertPriority: OperationAlertPriority
+  val operationAlertPriority: OperationAlertPriority,
+  val temperatureTrend: TemperatureTrend,
+  val temperatureTrendLabel: String
 )
 
 /**
@@ -89,7 +92,9 @@ fun ProductionMonitorScreen(
       delayLabel = uiState.delayLabel,
       operationAlertTitle = uiState.operationAlertTitle,
       operationAlertDetail = uiState.operationAlertDetail,
-      operationAlertPriority = uiState.operationAlertPriority
+      operationAlertPriority = uiState.operationAlertPriority,
+      temperatureTrend = uiState.temperatureTrend,
+      temperatureTrendLabel = uiState.temperatureTrendLabel
     )
 
     TemperatureGauge(
@@ -133,7 +138,9 @@ private fun StepStatusCard(
   delayLabel: String,
   operationAlertTitle: String,
   operationAlertDetail: String,
-  operationAlertPriority: OperationAlertPriority
+  operationAlertPriority: OperationAlertPriority,
+  temperatureTrend: TemperatureTrend,
+  temperatureTrendLabel: String
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -160,6 +167,15 @@ private fun StepStatusCard(
       Text(
         text = "工程進捗: ${progressPercent.coerceIn(0, 100)}% ($progressLabel)",
         style = MaterialTheme.typography.titleMedium
+      )
+      Text(
+        text = "温度トレンド: $temperatureTrendLabel",
+        style = MaterialTheme.typography.titleMedium,
+        color = when (temperatureTrend) {
+          TemperatureTrend.RISING -> Color(0xFFD84315)
+          TemperatureTrend.FALLING -> Color(0xFF1565C0)
+          TemperatureTrend.STABLE -> Color(0xFF2E7D32)
+        }
       )
       Text(
         text = if (isDelayed) "進捗状態: 遅延 / $delayLabel" else "進捗状態: 定常 / $delayLabel",

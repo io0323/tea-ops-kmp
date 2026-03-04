@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
 
 /**
@@ -36,13 +37,19 @@ import com.teaops.shared.domain.entity.ProcessingStep
 data class ProductionMonitorUiState(
   val currentStep: ProcessingStep,
   val remainingSeconds: Long,
+  val remainingTimeLabel: String,
   val currentTemperature: Double,
   val qualityScore: Int,
   val warningMessage: String,
   val alertLevel: AlertLevel,
   val progressPercent: Int,
   val progressLabel: String,
-  val isDelayed: Boolean
+  val isDelayed: Boolean,
+  val delaySeconds: Long,
+  val delayLabel: String,
+  val operationAlertTitle: String,
+  val operationAlertDetail: String,
+  val operationAlertPriority: OperationAlertPriority
 )
 
 /**
@@ -73,11 +80,16 @@ fun ProductionMonitorScreen(
     StepStatusCard(
       stepName = uiState.currentStep.stepName,
       remainingSeconds = uiState.remainingSeconds,
+      remainingTimeLabel = uiState.remainingTimeLabel,
       qualityScore = uiState.qualityScore,
       warningMessage = uiState.warningMessage,
       progressPercent = uiState.progressPercent,
       progressLabel = uiState.progressLabel,
-      isDelayed = uiState.isDelayed
+      isDelayed = uiState.isDelayed,
+      delayLabel = uiState.delayLabel,
+      operationAlertTitle = uiState.operationAlertTitle,
+      operationAlertDetail = uiState.operationAlertDetail,
+      operationAlertPriority = uiState.operationAlertPriority
     )
 
     TemperatureGauge(
@@ -112,11 +124,16 @@ fun ProductionMonitorScreen(
 private fun StepStatusCard(
   stepName: String,
   remainingSeconds: Long,
+  remainingTimeLabel: String,
   qualityScore: Int,
   warningMessage: String,
   progressPercent: Int,
   progressLabel: String,
-  isDelayed: Boolean
+  isDelayed: Boolean,
+  delayLabel: String,
+  operationAlertTitle: String,
+  operationAlertDetail: String,
+  operationAlertPriority: OperationAlertPriority
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -132,7 +149,7 @@ private fun StepStatusCard(
         fontWeight = FontWeight.Bold
       )
       Text(
-        text = "残り ${remainingSeconds.coerceAtLeast(0)} 秒",
+        text = "残り ${remainingSeconds.coerceAtLeast(0)} 秒 ($remainingTimeLabel)",
         style = MaterialTheme.typography.titleLarge
       )
       Text(
@@ -145,10 +162,29 @@ private fun StepStatusCard(
         style = MaterialTheme.typography.titleMedium
       )
       Text(
-        text = if (isDelayed) "進捗状態: 遅延" else "進捗状態: 定常",
+        text = if (isDelayed) "進捗状態: 遅延 / $delayLabel" else "進捗状態: 定常 / $delayLabel",
         style = MaterialTheme.typography.bodyLarge,
         color = if (isDelayed) Color(0xFFB00020) else Color(0xFF1B5E20),
         fontWeight = FontWeight.SemiBold
+      )
+      Text(
+        text = "運用優先度: ${operationAlertPriority.name}",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = when (operationAlertPriority) {
+          OperationAlertPriority.HIGH -> Color(0xFFB00020)
+          OperationAlertPriority.MEDIUM -> Color(0xFFFF6F00)
+          OperationAlertPriority.LOW -> Color(0xFF1B5E20)
+        }
+      )
+      Text(
+        text = operationAlertTitle,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold
+      )
+      Text(
+        text = operationAlertDetail,
+        style = MaterialTheme.typography.bodyLarge
       )
       Text(
         text = warningMessage,

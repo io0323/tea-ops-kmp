@@ -1,8 +1,11 @@
 package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
+import com.teaops.shared.domain.usecase.FormatDurationUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -17,7 +20,11 @@ class ProductionMonitorStateFactoryTest {
    */
   @Test
   fun createBuildsInProgressState() {
-    val factory = ProductionMonitorStateFactory(EvaluateTeaQualityUseCase())
+    val factory = ProductionMonitorStateFactory(
+      evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
+    )
     val step = ProcessingStep(
       id = "seisei",
       stepName = "殺青",
@@ -34,7 +41,12 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(40, state.progressPercent)
     assertEquals("進行中", state.progressLabel)
     assertFalse(state.isDelayed)
+    assertEquals("02:00", state.remainingTimeLabel)
+    assertEquals("遅延なし", state.delayLabel)
+    assertEquals(0L, state.delaySeconds)
     assertEquals(AlertLevel.NORMAL, state.alertLevel)
+    assertEquals(OperationAlertPriority.LOW, state.operationAlertPriority)
+    assertEquals("安定運転", state.operationAlertTitle)
   }
 
   /**
@@ -42,7 +54,11 @@ class ProductionMonitorStateFactoryTest {
    */
   @Test
   fun createBuildsDelayedStateWhenElapsedExceedsDuration() {
-    val factory = ProductionMonitorStateFactory(EvaluateTeaQualityUseCase())
+    val factory = ProductionMonitorStateFactory(
+      evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
+    )
     val step = ProcessingStep(
       id = "junen",
       stepName = "揉捻",
@@ -59,6 +75,11 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(100, state.progressPercent)
     assertEquals("遅延", state.progressLabel)
     assertTrue(state.isDelayed)
+    assertEquals("00:00", state.remainingTimeLabel)
+    assertEquals(40L, state.delaySeconds)
+    assertEquals("遅延 00:40", state.delayLabel)
     assertTrue(state.qualityScore < 75)
+    assertEquals(OperationAlertPriority.HIGH, state.operationAlertPriority)
+    assertEquals("最優先対応", state.operationAlertTitle)
   }
 }

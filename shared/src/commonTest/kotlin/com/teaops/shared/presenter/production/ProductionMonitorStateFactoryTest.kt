@@ -3,7 +3,9 @@ package com.teaops.shared.presenter.production
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
 import kotlin.test.Test
@@ -23,7 +25,8 @@ class ProductionMonitorStateFactoryTest {
     val factory = ProductionMonitorStateFactory(
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
       formatDurationUseCase = FormatDurationUseCase(),
-      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -47,6 +50,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(AlertLevel.NORMAL, state.alertLevel)
     assertEquals(OperationAlertPriority.LOW, state.operationAlertPriority)
     assertEquals("安定運転", state.operationAlertTitle)
+    assertEquals(TemperatureTrend.STABLE, state.temperatureTrend)
+    assertEquals("安定", state.temperatureTrendLabel)
   }
 
   /**
@@ -57,7 +62,8 @@ class ProductionMonitorStateFactoryTest {
     val factory = ProductionMonitorStateFactory(
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
       formatDurationUseCase = FormatDurationUseCase(),
-      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -69,7 +75,8 @@ class ProductionMonitorStateFactoryTest {
     val state = factory.create(
       currentStep = step,
       currentTemperature = 120.0,
-      elapsedSecondsInStep = 140L
+      elapsedSecondsInStep = 140L,
+      previousTemperature = 110.0
     )
 
     assertEquals(100, state.progressPercent)
@@ -81,5 +88,7 @@ class ProductionMonitorStateFactoryTest {
     assertTrue(state.qualityScore < 75)
     assertEquals(OperationAlertPriority.HIGH, state.operationAlertPriority)
     assertEquals("最優先対応", state.operationAlertTitle)
+    assertEquals(TemperatureTrend.RISING, state.temperatureTrend)
+    assertEquals("上昇", state.temperatureTrendLabel)
   }
 }

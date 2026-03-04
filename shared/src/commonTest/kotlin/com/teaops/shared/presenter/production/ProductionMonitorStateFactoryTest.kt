@@ -3,8 +3,10 @@ package com.teaops.shared.presenter.production
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
@@ -26,7 +28,8 @@ class ProductionMonitorStateFactoryTest {
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
       formatDurationUseCase = FormatDurationUseCase(),
       buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
-      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase()
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -52,6 +55,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("安定運転", state.operationAlertTitle)
     assertEquals(TemperatureTrend.STABLE, state.temperatureTrend)
     assertEquals("安定", state.temperatureTrendLabel)
+    assertEquals(TemperatureActionLevel.KEEP, state.temperatureActionLevel)
+    assertEquals("現状維持", state.temperatureActionTitle)
   }
 
   /**
@@ -63,7 +68,8 @@ class ProductionMonitorStateFactoryTest {
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
       formatDurationUseCase = FormatDurationUseCase(),
       buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
-      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase()
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -90,5 +96,7 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("最優先対応", state.operationAlertTitle)
     assertEquals(TemperatureTrend.RISING, state.temperatureTrend)
     assertEquals("上昇", state.temperatureTrendLabel)
+    assertEquals(TemperatureActionLevel.URGENT, state.temperatureActionLevel)
+    assertEquals("加熱抑制が必要", state.temperatureActionTitle)
   }
 }

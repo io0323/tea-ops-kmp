@@ -3,6 +3,7 @@ package com.teaops.shared.presenter.production
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
@@ -14,7 +15,8 @@ class ProductionMonitorStateFactory(
   private val evaluateTeaQualityUseCase: EvaluateTeaQualityUseCase,
   private val formatDurationUseCase: FormatDurationUseCase,
   private val buildOperationAlertSummaryUseCase: BuildOperationAlertSummaryUseCase,
-  private val detectTemperatureTrendUseCase: DetectTemperatureTrendUseCase
+  private val detectTemperatureTrendUseCase: DetectTemperatureTrendUseCase,
+  private val buildTemperatureActionSuggestionUseCase: BuildTemperatureActionSuggestionUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -61,6 +63,11 @@ class ProductionMonitorStateFactory(
       TemperatureTrend.FALLING -> "下降"
       TemperatureTrend.STABLE -> "安定"
     }
+    val actionSuggestion = buildTemperatureActionSuggestionUseCase(
+      currentTemperature = currentTemperature,
+      targetTemperature = currentStep.targetTemperature,
+      temperatureTrend = temperatureTrend
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -79,7 +86,10 @@ class ProductionMonitorStateFactory(
       operationAlertDetail = operationSummary.detail,
       operationAlertPriority = operationSummary.priority,
       temperatureTrend = temperatureTrend,
-      temperatureTrendLabel = trendLabel
+      temperatureTrendLabel = trendLabel,
+      temperatureActionTitle = actionSuggestion.title,
+      temperatureActionDetail = actionSuggestion.detail,
+      temperatureActionLevel = actionSuggestion.level
     )
   }
 

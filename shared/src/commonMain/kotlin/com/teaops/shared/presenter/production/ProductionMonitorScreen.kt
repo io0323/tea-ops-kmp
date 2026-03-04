@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 
 /**
@@ -52,7 +53,10 @@ data class ProductionMonitorUiState(
   val operationAlertDetail: String,
   val operationAlertPriority: OperationAlertPriority,
   val temperatureTrend: TemperatureTrend,
-  val temperatureTrendLabel: String
+  val temperatureTrendLabel: String,
+  val temperatureActionTitle: String,
+  val temperatureActionDetail: String,
+  val temperatureActionLevel: TemperatureActionLevel
 )
 
 /**
@@ -94,7 +98,10 @@ fun ProductionMonitorScreen(
       operationAlertDetail = uiState.operationAlertDetail,
       operationAlertPriority = uiState.operationAlertPriority,
       temperatureTrend = uiState.temperatureTrend,
-      temperatureTrendLabel = uiState.temperatureTrendLabel
+      temperatureTrendLabel = uiState.temperatureTrendLabel,
+      temperatureActionTitle = uiState.temperatureActionTitle,
+      temperatureActionDetail = uiState.temperatureActionDetail,
+      temperatureActionLevel = uiState.temperatureActionLevel
     )
 
     TemperatureGauge(
@@ -140,7 +147,10 @@ private fun StepStatusCard(
   operationAlertDetail: String,
   operationAlertPriority: OperationAlertPriority,
   temperatureTrend: TemperatureTrend,
-  temperatureTrendLabel: String
+  temperatureTrendLabel: String,
+  temperatureActionTitle: String,
+  temperatureActionDetail: String,
+  temperatureActionLevel: TemperatureActionLevel
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -200,6 +210,20 @@ private fun StepStatusCard(
       )
       Text(
         text = operationAlertDetail,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
+        text = "温度操作: $temperatureActionTitle",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = when (temperatureActionLevel) {
+          TemperatureActionLevel.KEEP -> Color(0xFF1B5E20)
+          TemperatureActionLevel.ADJUST -> Color(0xFFFF6F00)
+          TemperatureActionLevel.URGENT -> Color(0xFFB00020)
+        }
+      )
+      Text(
+        text = temperatureActionDetail,
         style = MaterialTheme.typography.bodyLarge
       )
       Text(

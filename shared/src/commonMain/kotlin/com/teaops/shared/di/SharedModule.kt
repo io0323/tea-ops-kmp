@@ -10,6 +10,7 @@ import com.teaops.shared.data.repository.TeaRepositoryImpl
 import com.teaops.shared.db.TeaOpsDatabase
 import com.teaops.shared.domain.repository.TeaRepository
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
@@ -50,6 +51,7 @@ val sharedModule = module {
   factory { EvaluateTeaQualityUseCase() }
   factory { FormatDurationUseCase() }
   factory { BuildOperationAlertSummaryUseCase() }
+  factory { BuildTemperatureActionSuggestionUseCase() }
   factory { DetectTemperatureTrendUseCase() }
   factory { ValidateProcessDefinitionUseCase() }
   factory {
@@ -58,7 +60,7 @@ val sharedModule = module {
       validateProcessDefinitionUseCase = get()
     )
   }
-  factory { ProductionMonitorStateFactory(get(), get(), get(), get()) }
+  factory { ProductionMonitorStateFactory(get(), get(), get(), get(), get()) }
 
   /**
    * 外部注入を想定する必須依存関係。

@@ -4,9 +4,11 @@ import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.MonitoringCadenceLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.RiskBand
 import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -35,7 +37,8 @@ class ProductionMonitorStateFactoryTest {
       buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
       calculateTemperatureDeviationIndexUseCase =
         CalculateTemperatureDeviationIndexUseCase(),
-      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase()
+      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
+      buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -68,6 +71,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(60, state.nextCheckInSeconds)
     assertEquals("通常監視", state.nextCheckLabel)
     assertEquals(MonitoringCadenceLevel.RELAXED, state.nextCheckLevel)
+    assertEquals(RiskBand.LOW, state.riskBand)
+    assertEquals("低リスク", state.riskLabel)
   }
 
   /**
@@ -83,7 +88,8 @@ class ProductionMonitorStateFactoryTest {
       buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
       calculateTemperatureDeviationIndexUseCase =
         CalculateTemperatureDeviationIndexUseCase(),
-      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase()
+      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
+      buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -117,5 +123,7 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(15, state.nextCheckInSeconds)
     assertEquals("即時監視", state.nextCheckLabel)
     assertEquals(MonitoringCadenceLevel.FAST, state.nextCheckLevel)
+    assertEquals(RiskBand.HIGH, state.riskBand)
+    assertEquals("高リスク", state.riskLabel)
   }
 }

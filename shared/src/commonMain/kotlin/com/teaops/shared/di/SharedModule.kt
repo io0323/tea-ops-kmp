@@ -10,6 +10,7 @@ import com.teaops.shared.data.repository.TeaRepositoryImpl
 import com.teaops.shared.db.TeaOpsDatabase
 import com.teaops.shared.domain.repository.TeaRepository
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -53,6 +54,7 @@ val sharedModule = module {
   factory { EvaluateTeaQualityUseCase() }
   factory { FormatDurationUseCase() }
   factory { BuildOperationAlertSummaryUseCase() }
+  factory { BuildOperationalRiskSnapshotUseCase() }
   factory { BuildTemperatureActionSuggestionUseCase() }
   factory { CalculateTemperatureDeviationIndexUseCase() }
   factory { DetectTemperatureTrendUseCase() }
@@ -65,7 +67,7 @@ val sharedModule = module {
     )
   }
   factory {
-    ProductionMonitorStateFactory(get(), get(), get(), get(), get(), get(), get())
+    ProductionMonitorStateFactory(get(), get(), get(), get(), get(), get(), get(), get())
   }
 
   /**

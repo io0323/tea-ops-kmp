@@ -1,7 +1,9 @@
 package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
 
@@ -11,7 +13,8 @@ import com.teaops.shared.domain.usecase.FormatDurationUseCase
 class ProductionMonitorStateFactory(
   private val evaluateTeaQualityUseCase: EvaluateTeaQualityUseCase,
   private val formatDurationUseCase: FormatDurationUseCase,
-  private val buildOperationAlertSummaryUseCase: BuildOperationAlertSummaryUseCase
+  private val buildOperationAlertSummaryUseCase: BuildOperationAlertSummaryUseCase,
+  private val detectTemperatureTrendUseCase: DetectTemperatureTrendUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -19,7 +22,8 @@ class ProductionMonitorStateFactory(
   fun create(
     currentStep: ProcessingStep,
     currentTemperature: Double,
-    elapsedSecondsInStep: Long
+    elapsedSecondsInStep: Long,
+    previousTemperature: Double = currentTemperature
   ): ProductionMonitorUiState {
     val quality = evaluateTeaQualityUseCase(
       step = currentStep,
@@ -48,6 +52,15 @@ class ProductionMonitorStateFactory(
       isDelayed = isDelayed,
       delayLabel = delayLabel
     )
+    val temperatureTrend = detectTemperatureTrendUseCase(
+      previousTemperature = previousTemperature,
+      currentTemperature = currentTemperature
+    )
+    val trendLabel = when (temperatureTrend) {
+      TemperatureTrend.RISING -> "上昇"
+      TemperatureTrend.FALLING -> "下降"
+      TemperatureTrend.STABLE -> "安定"
+    }
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -64,7 +77,9 @@ class ProductionMonitorStateFactory(
       delayLabel = delayLabel,
       operationAlertTitle = operationSummary.title,
       operationAlertDetail = operationSummary.detail,
-      operationAlertPriority = operationSummary.priority
+      operationAlertPriority = operationSummary.priority,
+      temperatureTrend = temperatureTrend,
+      temperatureTrendLabel = trendLabel
     )
   }
 

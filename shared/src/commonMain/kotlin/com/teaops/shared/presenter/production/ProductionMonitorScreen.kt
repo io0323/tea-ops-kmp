@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.ProcessingStep
 
 /**
@@ -35,7 +36,10 @@ import com.teaops.shared.domain.entity.ProcessingStep
 data class ProductionMonitorUiState(
   val currentStep: ProcessingStep,
   val remainingSeconds: Long,
-  val currentTemperature: Double
+  val currentTemperature: Double,
+  val qualityScore: Int,
+  val warningMessage: String,
+  val alertLevel: AlertLevel
 )
 
 /**
@@ -47,14 +51,10 @@ fun ProductionMonitorScreen(
   onNextStep: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val isAbnormal = uiState.currentTemperature >
-    uiState.currentStep.targetTemperature + 5.0
-
   val animatedBackground by animateColorAsState(
     targetValue = when {
-      isAbnormal -> Color(0xFFB00020)
-      uiState.currentTemperature > uiState.currentStep.targetTemperature ->
-        Color(0xFFFFC107)
+      uiState.alertLevel == AlertLevel.CRITICAL -> Color(0xFFB00020)
+      uiState.alertLevel == AlertLevel.CAUTION -> Color(0xFFFFC107)
       else -> Color(0xFFF4F6F8)
     },
     animationSpec = tween(durationMillis = 600)
@@ -69,7 +69,9 @@ fun ProductionMonitorScreen(
   ) {
     StepStatusCard(
       stepName = uiState.currentStep.stepName,
-      remainingSeconds = uiState.remainingSeconds
+      remainingSeconds = uiState.remainingSeconds,
+      qualityScore = uiState.qualityScore,
+      warningMessage = uiState.warningMessage
     )
 
     TemperatureGauge(
@@ -103,7 +105,9 @@ fun ProductionMonitorScreen(
 @Composable
 private fun StepStatusCard(
   stepName: String,
-  remainingSeconds: Long
+  remainingSeconds: Long,
+  qualityScore: Int,
+  warningMessage: String
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -121,6 +125,15 @@ private fun StepStatusCard(
       Text(
         text = "残り ${remainingSeconds.coerceAtLeast(0)} 秒",
         style = MaterialTheme.typography.titleLarge
+      )
+      Text(
+        text = "品質スコア: ${qualityScore.coerceIn(0, 100)}",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold
+      )
+      Text(
+        text = warningMessage,
+        style = MaterialTheme.typography.bodyLarge
       )
     }
   }

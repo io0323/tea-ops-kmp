@@ -2,7 +2,10 @@ package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureTrend
+import com.teaops.shared.domain.entity.ChecklistActionLevel
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
+import com.teaops.shared.domain.usecase.BuildPriorityChecklistUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -21,7 +24,9 @@ class ProductionMonitorStateFactory(
   private val buildTemperatureActionSuggestionUseCase: BuildTemperatureActionSuggestionUseCase,
   private val calculateTemperatureDeviationIndexUseCase:
     CalculateTemperatureDeviationIndexUseCase,
-  private val suggestMonitoringIntervalUseCase: SuggestMonitoringIntervalUseCase
+  private val suggestMonitoringIntervalUseCase: SuggestMonitoringIntervalUseCase,
+  private val buildOperationalRiskSnapshotUseCase: BuildOperationalRiskSnapshotUseCase,
+  private val buildPriorityChecklistUseCase: BuildPriorityChecklistUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -82,6 +87,18 @@ class ProductionMonitorStateFactory(
       actionLevel = actionSuggestion.level,
       deviationIndex = deviationAssessment.deviationIndex
     )
+    val riskSnapshot = buildOperationalRiskSnapshotUseCase(
+      qualityScore = quality.score,
+      deviationIndex = deviationAssessment.deviationIndex,
+      operationPriority = operationSummary.priority
+    )
+    val checklistItems = buildPriorityChecklistUseCase(
+      riskBand = riskSnapshot.band,
+      temperatureTrend = temperatureTrend,
+      isDelayed = isDelayed
+    )
+    val primaryChecklist = checklistItems.firstOrNull()
+    val secondaryChecklist = checklistItems.getOrNull(1)
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -108,7 +125,16 @@ class ProductionMonitorStateFactory(
       temperatureDeviationLabel = deviationAssessment.deviationLabel,
       nextCheckInSeconds = intervalSuggestion.seconds,
       nextCheckLabel = intervalSuggestion.label,
-      nextCheckLevel = intervalSuggestion.level
+      nextCheckLevel = intervalSuggestion.level,
+      riskBand = riskSnapshot.band,
+      riskLabel = riskSnapshot.label,
+      riskSummary = riskSnapshot.summary,
+      checklistPrimaryTitle = primaryChecklist?.title.orEmpty(),
+      checklistPrimaryDetail = primaryChecklist?.detail.orEmpty(),
+      checklistPrimaryLevel = primaryChecklist?.level ?: ChecklistActionLevel.INFO,
+      checklistSecondaryTitle = secondaryChecklist?.title.orEmpty(),
+      checklistSecondaryDetail = secondaryChecklist?.detail.orEmpty(),
+      checklistSecondaryLevel = secondaryChecklist?.level ?: ChecklistActionLevel.INFO
     )
   }
 

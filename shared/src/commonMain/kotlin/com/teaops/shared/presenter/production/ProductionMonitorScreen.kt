@@ -28,9 +28,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.entity.ChecklistActionLevel
 import com.teaops.shared.domain.entity.MonitoringCadenceLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.entity.RiskBand
 import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 
@@ -62,7 +64,16 @@ data class ProductionMonitorUiState(
   val temperatureDeviationLabel: String,
   val nextCheckInSeconds: Int,
   val nextCheckLabel: String,
-  val nextCheckLevel: MonitoringCadenceLevel
+  val nextCheckLevel: MonitoringCadenceLevel,
+  val riskBand: RiskBand,
+  val riskLabel: String,
+  val riskSummary: String,
+  val checklistPrimaryTitle: String,
+  val checklistPrimaryDetail: String,
+  val checklistPrimaryLevel: ChecklistActionLevel,
+  val checklistSecondaryTitle: String,
+  val checklistSecondaryDetail: String,
+  val checklistSecondaryLevel: ChecklistActionLevel
 )
 
 /**
@@ -112,7 +123,16 @@ fun ProductionMonitorScreen(
       temperatureDeviationLabel = uiState.temperatureDeviationLabel,
       nextCheckInSeconds = uiState.nextCheckInSeconds,
       nextCheckLabel = uiState.nextCheckLabel,
-      nextCheckLevel = uiState.nextCheckLevel
+      nextCheckLevel = uiState.nextCheckLevel,
+      riskBand = uiState.riskBand,
+      riskLabel = uiState.riskLabel,
+      riskSummary = uiState.riskSummary,
+      checklistPrimaryTitle = uiState.checklistPrimaryTitle,
+      checklistPrimaryDetail = uiState.checklistPrimaryDetail,
+      checklistPrimaryLevel = uiState.checklistPrimaryLevel,
+      checklistSecondaryTitle = uiState.checklistSecondaryTitle,
+      checklistSecondaryDetail = uiState.checklistSecondaryDetail,
+      checklistSecondaryLevel = uiState.checklistSecondaryLevel
     )
 
     TemperatureGauge(
@@ -166,7 +186,16 @@ private fun StepStatusCard(
   temperatureDeviationLabel: String,
   nextCheckInSeconds: Int,
   nextCheckLabel: String,
-  nextCheckLevel: MonitoringCadenceLevel
+  nextCheckLevel: MonitoringCadenceLevel,
+  riskBand: RiskBand,
+  riskLabel: String,
+  riskSummary: String,
+  checklistPrimaryTitle: String,
+  checklistPrimaryDetail: String,
+  checklistPrimaryLevel: ChecklistActionLevel,
+  checklistSecondaryTitle: String,
+  checklistSecondaryDetail: String,
+  checklistSecondaryLevel: ChecklistActionLevel
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -262,10 +291,56 @@ private fun StepStatusCard(
         }
       )
       Text(
+        text = "統合リスク: $riskLabel",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = when (riskBand) {
+          RiskBand.HIGH -> Color(0xFFB00020)
+          RiskBand.MEDIUM -> Color(0xFFFF6F00)
+          RiskBand.LOW -> Color(0xFF1B5E20)
+        }
+      )
+      Text(
+        text = riskSummary,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
+        text = "優先チェック1: $checklistPrimaryTitle",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = checklistColor(checklistPrimaryLevel)
+      )
+      Text(
+        text = checklistPrimaryDetail,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
+        text = "優先チェック2: $checklistSecondaryTitle",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = checklistColor(checklistSecondaryLevel)
+      )
+      Text(
+        text = checklistSecondaryDetail,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
         text = warningMessage,
         style = MaterialTheme.typography.bodyLarge
       )
     }
+  }
+}
+
+/**
+ * チェックリストレベルの表示色を返す。
+ */
+@Composable
+private fun checklistColor(level: ChecklistActionLevel): Color {
+  return when (level) {
+    ChecklistActionLevel.CRITICAL -> Color(0xFFB00020)
+    ChecklistActionLevel.WARNING -> Color(0xFFFF6F00)
+    ChecklistActionLevel.INFO -> Color(0xFF1B5E20)
   }
 }
 

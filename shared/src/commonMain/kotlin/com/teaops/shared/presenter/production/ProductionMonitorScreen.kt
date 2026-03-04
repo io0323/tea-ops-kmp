@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.entity.MonitoringCadenceLevel
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureActionLevel
@@ -58,7 +59,10 @@ data class ProductionMonitorUiState(
   val temperatureActionDetail: String,
   val temperatureActionLevel: TemperatureActionLevel,
   val temperatureDeviationIndex: Int,
-  val temperatureDeviationLabel: String
+  val temperatureDeviationLabel: String,
+  val nextCheckInSeconds: Int,
+  val nextCheckLabel: String,
+  val nextCheckLevel: MonitoringCadenceLevel
 )
 
 /**
@@ -105,7 +109,10 @@ fun ProductionMonitorScreen(
       temperatureActionDetail = uiState.temperatureActionDetail,
       temperatureActionLevel = uiState.temperatureActionLevel,
       temperatureDeviationIndex = uiState.temperatureDeviationIndex,
-      temperatureDeviationLabel = uiState.temperatureDeviationLabel
+      temperatureDeviationLabel = uiState.temperatureDeviationLabel,
+      nextCheckInSeconds = uiState.nextCheckInSeconds,
+      nextCheckLabel = uiState.nextCheckLabel,
+      nextCheckLevel = uiState.nextCheckLevel
     )
 
     TemperatureGauge(
@@ -156,7 +163,10 @@ private fun StepStatusCard(
   temperatureActionDetail: String,
   temperatureActionLevel: TemperatureActionLevel,
   temperatureDeviationIndex: Int,
-  temperatureDeviationLabel: String
+  temperatureDeviationLabel: String,
+  nextCheckInSeconds: Int,
+  nextCheckLabel: String,
+  nextCheckLevel: MonitoringCadenceLevel
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -240,6 +250,16 @@ private fun StepStatusCard(
       Text(
         text = temperatureActionDetail,
         style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
+        text = "次回チェック: ${nextCheckInSeconds.coerceAtLeast(0)}秒後 ($nextCheckLabel)",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = when (nextCheckLevel) {
+          MonitoringCadenceLevel.FAST -> Color(0xFFB00020)
+          MonitoringCadenceLevel.NORMAL -> Color(0xFFFF6F00)
+          MonitoringCadenceLevel.RELAXED -> Color(0xFF1B5E20)
+        }
       )
       Text(
         text = warningMessage,

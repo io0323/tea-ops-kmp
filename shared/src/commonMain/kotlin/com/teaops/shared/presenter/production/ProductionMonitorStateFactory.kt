@@ -25,6 +25,12 @@ class ProductionMonitorStateFactory(
     val duration = currentStep.duration.coerceAtLeast(0L)
     val boundedElapsed = elapsedSecondsInStep.coerceAtLeast(0L)
     val remaining = (duration - boundedElapsed).coerceAtLeast(0L)
+    val progressPercent = calculateProgressPercent(
+      elapsedSeconds = boundedElapsed,
+      durationSeconds = duration
+    )
+    val isDelayed = boundedElapsed > duration
+    val progressLabel = buildProgressLabel(progressPercent, isDelayed)
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -32,7 +38,42 @@ class ProductionMonitorStateFactory(
       currentTemperature = currentTemperature,
       qualityScore = quality.score,
       warningMessage = quality.message,
-      alertLevel = quality.alertLevel
+      alertLevel = quality.alertLevel,
+      progressPercent = progressPercent,
+      progressLabel = progressLabel,
+      isDelayed = isDelayed
     )
+  }
+
+  /**
+   * 工程経過秒数から進捗率を算出する。
+   */
+  private fun calculateProgressPercent(
+    elapsedSeconds: Long,
+    durationSeconds: Long
+  ): Int {
+    if (durationSeconds <= 0L) {
+      return 100
+    }
+    val ratio = elapsedSeconds.toDouble() / durationSeconds.toDouble()
+    return (ratio * 100.0).toInt().coerceIn(0, 100)
+  }
+
+  /**
+   * 進捗率と遅延状態からステータス文言を返す。
+   */
+  private fun buildProgressLabel(
+    progressPercent: Int,
+    isDelayed: Boolean
+  ): String {
+    if (isDelayed) {
+      return "遅延"
+    }
+    return when {
+      progressPercent < 25 -> "準備"
+      progressPercent < 60 -> "進行中"
+      progressPercent < 100 -> "終盤"
+      else -> "完了目安"
+    }
   }
 }

@@ -39,7 +39,10 @@ data class ProductionMonitorUiState(
   val currentTemperature: Double,
   val qualityScore: Int,
   val warningMessage: String,
-  val alertLevel: AlertLevel
+  val alertLevel: AlertLevel,
+  val progressPercent: Int,
+  val progressLabel: String,
+  val isDelayed: Boolean
 )
 
 /**
@@ -71,7 +74,10 @@ fun ProductionMonitorScreen(
       stepName = uiState.currentStep.stepName,
       remainingSeconds = uiState.remainingSeconds,
       qualityScore = uiState.qualityScore,
-      warningMessage = uiState.warningMessage
+      warningMessage = uiState.warningMessage,
+      progressPercent = uiState.progressPercent,
+      progressLabel = uiState.progressLabel,
+      isDelayed = uiState.isDelayed
     )
 
     TemperatureGauge(
@@ -107,7 +113,10 @@ private fun StepStatusCard(
   stepName: String,
   remainingSeconds: Long,
   qualityScore: Int,
-  warningMessage: String
+  warningMessage: String,
+  progressPercent: Int,
+  progressLabel: String,
+  isDelayed: Boolean
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -129,6 +138,16 @@ private fun StepStatusCard(
       Text(
         text = "品質スコア: ${qualityScore.coerceIn(0, 100)}",
         style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold
+      )
+      Text(
+        text = "工程進捗: ${progressPercent.coerceIn(0, 100)}% ($progressLabel)",
+        style = MaterialTheme.typography.titleMedium
+      )
+      Text(
+        text = if (isDelayed) "進捗状態: 遅延" else "進捗状態: 定常",
+        style = MaterialTheme.typography.bodyLarge,
+        color = if (isDelayed) Color(0xFFB00020) else Color(0xFF1B5E20),
         fontWeight = FontWeight.SemiBold
       )
       Text(

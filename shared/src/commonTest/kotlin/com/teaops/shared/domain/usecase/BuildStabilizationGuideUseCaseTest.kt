@@ -45,4 +45,55 @@ class BuildStabilizationGuideUseCaseTest {
     assertEquals(StabilizationPriority.LOW, result.priority)
     assertTrue(result.title.contains("通常"))
   }
+
+  /**
+   * 中リスク時に監視継続のガイドが返ることを確認する。
+   */
+  @Test
+  fun returnsMediumPriorityGuideForMediumRisk() {
+    val useCase = BuildStabilizationGuideUseCase()
+
+    val result = useCase(
+      riskBand = RiskBand.MEDIUM,
+      temperatureTrend = TemperatureTrend.STABLE,
+      nextCheckLevel = MonitoringCadenceLevel.RELAXED
+    )
+
+    assertEquals(StabilizationPriority.MEDIUM, result.priority)
+    assertTrue(result.title.contains("監視継続"))
+  }
+
+  /**
+   * 低リスクでも温度トレンドが安定でない場合は監視継続のガイドが返ることを確認する。
+   */
+  @Test
+  fun returnsMediumPriorityGuideWhenTrendIsNotStable() {
+    val useCase = BuildStabilizationGuideUseCase()
+
+    val result = useCase(
+      riskBand = RiskBand.LOW,
+      temperatureTrend = TemperatureTrend.RISING,
+      nextCheckLevel = MonitoringCadenceLevel.RELAXED
+    )
+
+    assertEquals(StabilizationPriority.MEDIUM, result.priority)
+    assertTrue(result.title.contains("監視継続"))
+  }
+
+  /**
+   * 低リスクでも監視レベルが FAST の場合は厳格な復帰条件が優先されることを確認する。
+   */
+  @Test
+  fun returnsHighPriorityGuideWhenFastMonitoringLevel() {
+    val useCase = BuildStabilizationGuideUseCase()
+
+    val result = useCase(
+      riskBand = RiskBand.LOW,
+      temperatureTrend = TemperatureTrend.STABLE,
+      nextCheckLevel = MonitoringCadenceLevel.FAST
+    )
+
+    assertEquals(StabilizationPriority.HIGH, result.priority)
+    assertTrue(result.title.contains("厳格"))
+  }
 }

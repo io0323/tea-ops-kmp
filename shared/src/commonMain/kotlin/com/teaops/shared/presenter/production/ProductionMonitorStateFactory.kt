@@ -3,10 +3,12 @@ package com.teaops.shared.presenter.production
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.entity.ChecklistActionLevel
+import com.teaops.shared.domain.entity.StabilizationPriority
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildMonitoringDigestUseCase
 import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildPriorityChecklistUseCase
+import com.teaops.shared.domain.usecase.BuildStabilizationGuideUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -28,7 +30,8 @@ class ProductionMonitorStateFactory(
   private val suggestMonitoringIntervalUseCase: SuggestMonitoringIntervalUseCase,
   private val buildOperationalRiskSnapshotUseCase: BuildOperationalRiskSnapshotUseCase,
   private val buildPriorityChecklistUseCase: BuildPriorityChecklistUseCase,
-  private val buildMonitoringDigestUseCase: BuildMonitoringDigestUseCase
+  private val buildMonitoringDigestUseCase: BuildMonitoringDigestUseCase,
+  private val buildStabilizationGuideUseCase: BuildStabilizationGuideUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -107,6 +110,11 @@ class ProductionMonitorStateFactory(
       temperatureTrend = temperatureTrend,
       isDelayed = isDelayed
     )
+    val stabilizationGuide = buildStabilizationGuideUseCase(
+      riskBand = riskSnapshot.band,
+      temperatureTrend = temperatureTrend,
+      nextCheckLevel = intervalSuggestion.level
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -145,7 +153,10 @@ class ProductionMonitorStateFactory(
       checklistSecondaryLevel = secondaryChecklist?.level ?: ChecklistActionLevel.INFO,
       monitoringDigestTitle = monitoringDigest.title,
       monitoringDigestDetail = monitoringDigest.detail,
-      monitoringDigestTone = monitoringDigest.tone
+      monitoringDigestTone = monitoringDigest.tone,
+      stabilizationGuideTitle = stabilizationGuide.title,
+      stabilizationGuideCondition = stabilizationGuide.condition,
+      stabilizationGuidePriority = stabilizationGuide.priority
     )
   }
 

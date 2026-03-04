@@ -34,6 +34,7 @@ import com.teaops.shared.domain.entity.MonitoringDigestTone
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.RiskBand
+import com.teaops.shared.domain.entity.StabilizationPriority
 import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 
@@ -77,7 +78,10 @@ data class ProductionMonitorUiState(
   val checklistSecondaryLevel: ChecklistActionLevel,
   val monitoringDigestTitle: String,
   val monitoringDigestDetail: String,
-  val monitoringDigestTone: MonitoringDigestTone
+  val monitoringDigestTone: MonitoringDigestTone,
+  val stabilizationGuideTitle: String,
+  val stabilizationGuideCondition: String,
+  val stabilizationGuidePriority: StabilizationPriority
 )
 
 /**
@@ -139,7 +143,10 @@ fun ProductionMonitorScreen(
       checklistSecondaryLevel = uiState.checklistSecondaryLevel,
       monitoringDigestTitle = uiState.monitoringDigestTitle,
       monitoringDigestDetail = uiState.monitoringDigestDetail,
-      monitoringDigestTone = uiState.monitoringDigestTone
+      monitoringDigestTone = uiState.monitoringDigestTone,
+      stabilizationGuideTitle = uiState.stabilizationGuideTitle,
+      stabilizationGuideCondition = uiState.stabilizationGuideCondition,
+      stabilizationGuidePriority = uiState.stabilizationGuidePriority
     )
 
     TemperatureGauge(
@@ -205,7 +212,10 @@ private fun StepStatusCard(
   checklistSecondaryLevel: ChecklistActionLevel,
   monitoringDigestTitle: String,
   monitoringDigestDetail: String,
-  monitoringDigestTone: MonitoringDigestTone
+  monitoringDigestTone: MonitoringDigestTone,
+  stabilizationGuideTitle: String,
+  stabilizationGuideCondition: String,
+  stabilizationGuidePriority: StabilizationPriority
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -345,10 +355,32 @@ private fun StepStatusCard(
         style = MaterialTheme.typography.bodyLarge
       )
       Text(
+        text = "安定化ガイド: $stabilizationGuideTitle",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = stabilizationColor(stabilizationGuidePriority)
+      )
+      Text(
+        text = stabilizationGuideCondition,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
         text = warningMessage,
         style = MaterialTheme.typography.bodyLarge
       )
     }
+  }
+}
+
+/**
+ * 安定化ガイド優先度の表示色を返す。
+ */
+@Composable
+private fun stabilizationColor(priority: StabilizationPriority): Color {
+  return when (priority) {
+    StabilizationPriority.HIGH -> Color(0xFFB00020)
+    StabilizationPriority.MEDIUM -> Color(0xFFFF6F00)
+    StabilizationPriority.LOW -> Color(0xFF1B5E20)
   }
 }
 

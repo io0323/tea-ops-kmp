@@ -36,13 +36,16 @@ import com.teaops.shared.domain.entity.ProcessingStep
 data class ProductionMonitorUiState(
   val currentStep: ProcessingStep,
   val remainingSeconds: Long,
+  val remainingTimeLabel: String,
   val currentTemperature: Double,
   val qualityScore: Int,
   val warningMessage: String,
   val alertLevel: AlertLevel,
   val progressPercent: Int,
   val progressLabel: String,
-  val isDelayed: Boolean
+  val isDelayed: Boolean,
+  val delaySeconds: Long,
+  val delayLabel: String
 )
 
 /**
@@ -73,11 +76,13 @@ fun ProductionMonitorScreen(
     StepStatusCard(
       stepName = uiState.currentStep.stepName,
       remainingSeconds = uiState.remainingSeconds,
+      remainingTimeLabel = uiState.remainingTimeLabel,
       qualityScore = uiState.qualityScore,
       warningMessage = uiState.warningMessage,
       progressPercent = uiState.progressPercent,
       progressLabel = uiState.progressLabel,
-      isDelayed = uiState.isDelayed
+      isDelayed = uiState.isDelayed,
+      delayLabel = uiState.delayLabel
     )
 
     TemperatureGauge(
@@ -112,11 +117,13 @@ fun ProductionMonitorScreen(
 private fun StepStatusCard(
   stepName: String,
   remainingSeconds: Long,
+  remainingTimeLabel: String,
   qualityScore: Int,
   warningMessage: String,
   progressPercent: Int,
   progressLabel: String,
-  isDelayed: Boolean
+  isDelayed: Boolean,
+  delayLabel: String
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -132,7 +139,7 @@ private fun StepStatusCard(
         fontWeight = FontWeight.Bold
       )
       Text(
-        text = "残り ${remainingSeconds.coerceAtLeast(0)} 秒",
+        text = "残り ${remainingSeconds.coerceAtLeast(0)} 秒 ($remainingTimeLabel)",
         style = MaterialTheme.typography.titleLarge
       )
       Text(
@@ -145,7 +152,7 @@ private fun StepStatusCard(
         style = MaterialTheme.typography.titleMedium
       )
       Text(
-        text = if (isDelayed) "進捗状態: 遅延" else "進捗状態: 定常",
+        text = if (isDelayed) "進捗状態: 遅延 / $delayLabel" else "進捗状態: 定常 / $delayLabel",
         style = MaterialTheme.typography.bodyLarge,
         color = if (isDelayed) Color(0xFFB00020) else Color(0xFF1B5E20),
         fontWeight = FontWeight.SemiBold

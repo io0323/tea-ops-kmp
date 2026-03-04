@@ -7,12 +7,14 @@ import com.teaops.shared.domain.entity.MonitoringDigestTone
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.RiskBand
+import com.teaops.shared.domain.entity.StabilizationPriority
 import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildMonitoringDigestUseCase
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildPriorityChecklistUseCase
+import com.teaops.shared.domain.usecase.BuildStabilizationGuideUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -44,7 +46,8 @@ class ProductionMonitorStateFactoryTest {
       suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
       buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase(),
       buildPriorityChecklistUseCase = BuildPriorityChecklistUseCase(),
-      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase()
+      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase(),
+      buildStabilizationGuideUseCase = BuildStabilizationGuideUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -83,6 +86,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("現行運転を維持", state.checklistPrimaryTitle)
     assertEquals("安定モード", state.monitoringDigestTitle)
     assertEquals(MonitoringDigestTone.CALM, state.monitoringDigestTone)
+    assertEquals("復帰条件: 通常", state.stabilizationGuideTitle)
+    assertEquals(StabilizationPriority.LOW, state.stabilizationGuidePriority)
   }
 
   /**
@@ -101,7 +106,8 @@ class ProductionMonitorStateFactoryTest {
       suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
       buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase(),
       buildPriorityChecklistUseCase = BuildPriorityChecklistUseCase(),
-      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase()
+      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase(),
+      buildStabilizationGuideUseCase = BuildStabilizationGuideUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -141,5 +147,7 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("温度制御を即時確認", state.checklistPrimaryTitle)
     assertEquals("即応モード", state.monitoringDigestTitle)
     assertEquals(MonitoringDigestTone.ALERT, state.monitoringDigestTone)
+    assertEquals("復帰条件: 厳格", state.stabilizationGuideTitle)
+    assertEquals(StabilizationPriority.HIGH, state.stabilizationGuidePriority)
   }
 }

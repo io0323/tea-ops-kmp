@@ -8,6 +8,7 @@ import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCas
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
+import com.teaops.shared.domain.usecase.SuggestMonitoringIntervalUseCase
 
 /**
  * 監視画面向けのUI状態を構築するファクトリ。
@@ -19,7 +20,8 @@ class ProductionMonitorStateFactory(
   private val detectTemperatureTrendUseCase: DetectTemperatureTrendUseCase,
   private val buildTemperatureActionSuggestionUseCase: BuildTemperatureActionSuggestionUseCase,
   private val calculateTemperatureDeviationIndexUseCase:
-    CalculateTemperatureDeviationIndexUseCase
+    CalculateTemperatureDeviationIndexUseCase,
+  private val suggestMonitoringIntervalUseCase: SuggestMonitoringIntervalUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -75,6 +77,11 @@ class ProductionMonitorStateFactory(
       currentTemperature = currentTemperature,
       targetTemperature = currentStep.targetTemperature
     )
+    val intervalSuggestion = suggestMonitoringIntervalUseCase(
+      operationPriority = operationSummary.priority,
+      actionLevel = actionSuggestion.level,
+      deviationIndex = deviationAssessment.deviationIndex
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -98,7 +105,10 @@ class ProductionMonitorStateFactory(
       temperatureActionDetail = actionSuggestion.detail,
       temperatureActionLevel = actionSuggestion.level,
       temperatureDeviationIndex = deviationAssessment.deviationIndex,
-      temperatureDeviationLabel = deviationAssessment.deviationLabel
+      temperatureDeviationLabel = deviationAssessment.deviationLabel,
+      nextCheckInSeconds = intervalSuggestion.seconds,
+      nextCheckLabel = intervalSuggestion.label,
+      nextCheckLevel = intervalSuggestion.level
     )
   }
 

@@ -16,6 +16,7 @@ import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
 import com.teaops.shared.domain.usecase.GetRecommendedStepUseCase
+import com.teaops.shared.domain.usecase.SuggestMonitoringIntervalUseCase
 import com.teaops.shared.domain.usecase.ValidateProcessDefinitionUseCase
 import com.teaops.shared.presenter.production.ProductionMonitorStateFactory
 import io.ktor.client.HttpClient
@@ -55,6 +56,7 @@ val sharedModule = module {
   factory { BuildTemperatureActionSuggestionUseCase() }
   factory { CalculateTemperatureDeviationIndexUseCase() }
   factory { DetectTemperatureTrendUseCase() }
+  factory { SuggestMonitoringIntervalUseCase() }
   factory { ValidateProcessDefinitionUseCase() }
   factory {
     GetRecommendedStepUseCase(
@@ -62,7 +64,9 @@ val sharedModule = module {
       validateProcessDefinitionUseCase = get()
     )
   }
-  factory { ProductionMonitorStateFactory(get(), get(), get(), get(), get(), get()) }
+  factory {
+    ProductionMonitorStateFactory(get(), get(), get(), get(), get(), get(), get())
+  }
 
   /**
    * 外部注入を想定する必須依存関係。

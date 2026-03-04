@@ -4,6 +4,7 @@ import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.entity.ChecklistActionLevel
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
+import com.teaops.shared.domain.usecase.BuildMonitoringDigestUseCase
 import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildPriorityChecklistUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
@@ -26,7 +27,8 @@ class ProductionMonitorStateFactory(
     CalculateTemperatureDeviationIndexUseCase,
   private val suggestMonitoringIntervalUseCase: SuggestMonitoringIntervalUseCase,
   private val buildOperationalRiskSnapshotUseCase: BuildOperationalRiskSnapshotUseCase,
-  private val buildPriorityChecklistUseCase: BuildPriorityChecklistUseCase
+  private val buildPriorityChecklistUseCase: BuildPriorityChecklistUseCase,
+  private val buildMonitoringDigestUseCase: BuildMonitoringDigestUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -99,6 +101,12 @@ class ProductionMonitorStateFactory(
     )
     val primaryChecklist = checklistItems.firstOrNull()
     val secondaryChecklist = checklistItems.getOrNull(1)
+    val monitoringDigest = buildMonitoringDigestUseCase(
+      riskBand = riskSnapshot.band,
+      nextCheckLevel = intervalSuggestion.level,
+      temperatureTrend = temperatureTrend,
+      isDelayed = isDelayed
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -134,7 +142,10 @@ class ProductionMonitorStateFactory(
       checklistPrimaryLevel = primaryChecklist?.level ?: ChecklistActionLevel.INFO,
       checklistSecondaryTitle = secondaryChecklist?.title.orEmpty(),
       checklistSecondaryDetail = secondaryChecklist?.detail.orEmpty(),
-      checklistSecondaryLevel = secondaryChecklist?.level ?: ChecklistActionLevel.INFO
+      checklistSecondaryLevel = secondaryChecklist?.level ?: ChecklistActionLevel.INFO,
+      monitoringDigestTitle = monitoringDigest.title,
+      monitoringDigestDetail = monitoringDigest.detail,
+      monitoringDigestTone = monitoringDigest.tone
     )
   }
 

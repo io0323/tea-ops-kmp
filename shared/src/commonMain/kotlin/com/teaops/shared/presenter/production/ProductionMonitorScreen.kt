@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.ChecklistActionLevel
 import com.teaops.shared.domain.entity.MonitoringCadenceLevel
+import com.teaops.shared.domain.entity.MonitoringDigestTone
 import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.RiskBand
@@ -73,7 +74,10 @@ data class ProductionMonitorUiState(
   val checklistPrimaryLevel: ChecklistActionLevel,
   val checklistSecondaryTitle: String,
   val checklistSecondaryDetail: String,
-  val checklistSecondaryLevel: ChecklistActionLevel
+  val checklistSecondaryLevel: ChecklistActionLevel,
+  val monitoringDigestTitle: String,
+  val monitoringDigestDetail: String,
+  val monitoringDigestTone: MonitoringDigestTone
 )
 
 /**
@@ -132,7 +136,10 @@ fun ProductionMonitorScreen(
       checklistPrimaryLevel = uiState.checklistPrimaryLevel,
       checklistSecondaryTitle = uiState.checklistSecondaryTitle,
       checklistSecondaryDetail = uiState.checklistSecondaryDetail,
-      checklistSecondaryLevel = uiState.checklistSecondaryLevel
+      checklistSecondaryLevel = uiState.checklistSecondaryLevel,
+      monitoringDigestTitle = uiState.monitoringDigestTitle,
+      monitoringDigestDetail = uiState.monitoringDigestDetail,
+      monitoringDigestTone = uiState.monitoringDigestTone
     )
 
     TemperatureGauge(
@@ -195,7 +202,10 @@ private fun StepStatusCard(
   checklistPrimaryLevel: ChecklistActionLevel,
   checklistSecondaryTitle: String,
   checklistSecondaryDetail: String,
-  checklistSecondaryLevel: ChecklistActionLevel
+  checklistSecondaryLevel: ChecklistActionLevel,
+  monitoringDigestTitle: String,
+  monitoringDigestDetail: String,
+  monitoringDigestTone: MonitoringDigestTone
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -325,10 +335,32 @@ private fun StepStatusCard(
         style = MaterialTheme.typography.bodyLarge
       )
       Text(
+        text = "監視ダイジェスト: $monitoringDigestTitle",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = digestColor(monitoringDigestTone)
+      )
+      Text(
+        text = monitoringDigestDetail,
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
         text = warningMessage,
         style = MaterialTheme.typography.bodyLarge
       )
     }
+  }
+}
+
+/**
+ * ダイジェストトーンの表示色を返す。
+ */
+@Composable
+private fun digestColor(tone: MonitoringDigestTone): Color {
+  return when (tone) {
+    MonitoringDigestTone.ALERT -> Color(0xFFB00020)
+    MonitoringDigestTone.WATCH -> Color(0xFFFF6F00)
+    MonitoringDigestTone.CALM -> Color(0xFF1B5E20)
   }
 }
 

@@ -9,7 +9,9 @@ import com.teaops.shared.data.repository.NetworkMonitor
 import com.teaops.shared.data.repository.TeaRepositoryImpl
 import com.teaops.shared.db.TeaOpsDatabase
 import com.teaops.shared.domain.repository.TeaRepository
+import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.GetRecommendedStepUseCase
+import com.teaops.shared.presenter.production.ProductionMonitorStateFactory
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
@@ -41,7 +43,9 @@ val sharedModule = module {
   /**
    * Domainユースケースを提供する。
    */
+  factory { EvaluateTeaQualityUseCase() }
   factory { GetRecommendedStepUseCase(nowProvider = { currentTimeMillis() }) }
+  factory { ProductionMonitorStateFactory(get()) }
 
   /**
    * 外部注入を想定する必須依存関係。

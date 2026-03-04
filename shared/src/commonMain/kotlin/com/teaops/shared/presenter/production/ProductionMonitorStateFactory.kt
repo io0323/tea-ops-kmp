@@ -2,12 +2,14 @@ package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
+import com.teaops.shared.domain.usecase.FormatDurationUseCase
 
 /**
  * 監視画面向けのUI状態を構築するファクトリ。
  */
 class ProductionMonitorStateFactory(
-  private val evaluateTeaQualityUseCase: EvaluateTeaQualityUseCase
+  private val evaluateTeaQualityUseCase: EvaluateTeaQualityUseCase,
+  private val formatDurationUseCase: FormatDurationUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -30,18 +32,28 @@ class ProductionMonitorStateFactory(
       durationSeconds = duration
     )
     val isDelayed = boundedElapsed > duration
+    val delaySeconds = (boundedElapsed - duration).coerceAtLeast(0L)
     val progressLabel = buildProgressLabel(progressPercent, isDelayed)
+    val remainingTimeLabel = formatDurationUseCase(remaining)
+    val delayLabel = if (isDelayed) {
+      "遅延 ${formatDurationUseCase(delaySeconds)}"
+    } else {
+      "遅延なし"
+    }
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
       remainingSeconds = remaining,
+      remainingTimeLabel = remainingTimeLabel,
       currentTemperature = currentTemperature,
       qualityScore = quality.score,
       warningMessage = quality.message,
       alertLevel = quality.alertLevel,
       progressPercent = progressPercent,
       progressLabel = progressLabel,
-      isDelayed = isDelayed
+      isDelayed = isDelayed,
+      delaySeconds = delaySeconds,
+      delayLabel = delayLabel
     )
   }
 

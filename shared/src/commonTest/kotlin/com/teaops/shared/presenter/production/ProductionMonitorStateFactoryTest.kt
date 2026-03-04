@@ -1,7 +1,9 @@
 package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.entity.OperationAlertPriority
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
 import kotlin.test.Test
@@ -20,7 +22,8 @@ class ProductionMonitorStateFactoryTest {
   fun createBuildsInProgressState() {
     val factory = ProductionMonitorStateFactory(
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
-      formatDurationUseCase = FormatDurationUseCase()
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -42,6 +45,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("遅延なし", state.delayLabel)
     assertEquals(0L, state.delaySeconds)
     assertEquals(AlertLevel.NORMAL, state.alertLevel)
+    assertEquals(OperationAlertPriority.LOW, state.operationAlertPriority)
+    assertEquals("安定運転", state.operationAlertTitle)
   }
 
   /**
@@ -51,7 +56,8 @@ class ProductionMonitorStateFactoryTest {
   fun createBuildsDelayedStateWhenElapsedExceedsDuration() {
     val factory = ProductionMonitorStateFactory(
       evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
-      formatDurationUseCase = FormatDurationUseCase()
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -73,5 +79,7 @@ class ProductionMonitorStateFactoryTest {
     assertEquals(40L, state.delaySeconds)
     assertEquals("遅延 00:40", state.delayLabel)
     assertTrue(state.qualityScore < 75)
+    assertEquals(OperationAlertPriority.HIGH, state.operationAlertPriority)
+    assertEquals("最優先対応", state.operationAlertTitle)
   }
 }

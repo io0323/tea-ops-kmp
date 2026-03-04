@@ -1,6 +1,7 @@
 package com.teaops.shared.presenter.production
 
 import com.teaops.shared.domain.entity.ProcessingStep
+import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
 
@@ -9,7 +10,8 @@ import com.teaops.shared.domain.usecase.FormatDurationUseCase
  */
 class ProductionMonitorStateFactory(
   private val evaluateTeaQualityUseCase: EvaluateTeaQualityUseCase,
-  private val formatDurationUseCase: FormatDurationUseCase
+  private val formatDurationUseCase: FormatDurationUseCase,
+  private val buildOperationAlertSummaryUseCase: BuildOperationAlertSummaryUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -40,6 +42,12 @@ class ProductionMonitorStateFactory(
     } else {
       "遅延なし"
     }
+    val operationSummary = buildOperationAlertSummaryUseCase(
+      alertLevel = quality.alertLevel,
+      qualityScore = quality.score,
+      isDelayed = isDelayed,
+      delayLabel = delayLabel
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -53,7 +61,10 @@ class ProductionMonitorStateFactory(
       progressLabel = progressLabel,
       isDelayed = isDelayed,
       delaySeconds = delaySeconds,
-      delayLabel = delayLabel
+      delayLabel = delayLabel,
+      operationAlertTitle = operationSummary.title,
+      operationAlertDetail = operationSummary.detail,
+      operationAlertPriority = operationSummary.priority
     )
   }
 

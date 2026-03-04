@@ -11,6 +11,7 @@ import com.teaops.shared.db.TeaOpsDatabase
 import com.teaops.shared.domain.repository.TeaRepository
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.GetRecommendedStepUseCase
+import com.teaops.shared.domain.usecase.ValidateProcessDefinitionUseCase
 import com.teaops.shared.presenter.production.ProductionMonitorStateFactory
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,13 @@ val sharedModule = module {
    * Domainユースケースを提供する。
    */
   factory { EvaluateTeaQualityUseCase() }
-  factory { GetRecommendedStepUseCase(nowProvider = { currentTimeMillis() }) }
+  factory { ValidateProcessDefinitionUseCase() }
+  factory {
+    GetRecommendedStepUseCase(
+      nowProvider = { currentTimeMillis() },
+      validateProcessDefinitionUseCase = get()
+    )
+  }
   factory { ProductionMonitorStateFactory(get()) }
 
   /**

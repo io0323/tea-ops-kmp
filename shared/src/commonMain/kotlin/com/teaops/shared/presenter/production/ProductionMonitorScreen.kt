@@ -56,7 +56,9 @@ data class ProductionMonitorUiState(
   val temperatureTrendLabel: String,
   val temperatureActionTitle: String,
   val temperatureActionDetail: String,
-  val temperatureActionLevel: TemperatureActionLevel
+  val temperatureActionLevel: TemperatureActionLevel,
+  val temperatureDeviationIndex: Int,
+  val temperatureDeviationLabel: String
 )
 
 /**
@@ -101,7 +103,9 @@ fun ProductionMonitorScreen(
       temperatureTrendLabel = uiState.temperatureTrendLabel,
       temperatureActionTitle = uiState.temperatureActionTitle,
       temperatureActionDetail = uiState.temperatureActionDetail,
-      temperatureActionLevel = uiState.temperatureActionLevel
+      temperatureActionLevel = uiState.temperatureActionLevel,
+      temperatureDeviationIndex = uiState.temperatureDeviationIndex,
+      temperatureDeviationLabel = uiState.temperatureDeviationLabel
     )
 
     TemperatureGauge(
@@ -150,7 +154,9 @@ private fun StepStatusCard(
   temperatureTrendLabel: String,
   temperatureActionTitle: String,
   temperatureActionDetail: String,
-  temperatureActionLevel: TemperatureActionLevel
+  temperatureActionLevel: TemperatureActionLevel,
+  temperatureDeviationIndex: Int,
+  temperatureDeviationLabel: String
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -185,6 +191,15 @@ private fun StepStatusCard(
           TemperatureTrend.RISING -> Color(0xFFD84315)
           TemperatureTrend.FALLING -> Color(0xFF1565C0)
           TemperatureTrend.STABLE -> Color(0xFF2E7D32)
+        }
+      )
+      Text(
+        text = "温度逸脱指数: ${temperatureDeviationIndex.coerceIn(0, 100)} ($temperatureDeviationLabel)",
+        style = MaterialTheme.typography.titleMedium,
+        color = when (temperatureDeviationLabel) {
+          "危険" -> Color(0xFFB00020)
+          "注意" -> Color(0xFFFF6F00)
+          else -> Color(0xFF1B5E20)
         }
       )
       Text(

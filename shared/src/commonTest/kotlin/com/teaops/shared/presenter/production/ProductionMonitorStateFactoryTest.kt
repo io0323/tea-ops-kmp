@@ -7,6 +7,7 @@ import com.teaops.shared.domain.entity.TemperatureActionLevel
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
+import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
@@ -29,7 +30,9 @@ class ProductionMonitorStateFactoryTest {
       formatDurationUseCase = FormatDurationUseCase(),
       buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
       detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
-      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase()
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
+      calculateTemperatureDeviationIndexUseCase =
+        CalculateTemperatureDeviationIndexUseCase()
     )
     val step = ProcessingStep(
       id = "seisei",
@@ -57,6 +60,8 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("安定", state.temperatureTrendLabel)
     assertEquals(TemperatureActionLevel.KEEP, state.temperatureActionLevel)
     assertEquals("現状維持", state.temperatureActionTitle)
+    assertEquals(5, state.temperatureDeviationIndex)
+    assertEquals("安定", state.temperatureDeviationLabel)
   }
 
   /**
@@ -69,7 +74,9 @@ class ProductionMonitorStateFactoryTest {
       formatDurationUseCase = FormatDurationUseCase(),
       buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
       detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
-      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase()
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
+      calculateTemperatureDeviationIndexUseCase =
+        CalculateTemperatureDeviationIndexUseCase()
     )
     val step = ProcessingStep(
       id = "junen",
@@ -98,5 +105,7 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("上昇", state.temperatureTrendLabel)
     assertEquals(TemperatureActionLevel.URGENT, state.temperatureActionLevel)
     assertEquals("加熱抑制が必要", state.temperatureActionTitle)
+    assertEquals(100, state.temperatureDeviationIndex)
+    assertEquals("危険", state.temperatureDeviationLabel)
   }
 }

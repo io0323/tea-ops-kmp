@@ -4,6 +4,7 @@ import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
+import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
 import com.teaops.shared.domain.usecase.EvaluateTeaQualityUseCase
 import com.teaops.shared.domain.usecase.FormatDurationUseCase
@@ -16,7 +17,9 @@ class ProductionMonitorStateFactory(
   private val formatDurationUseCase: FormatDurationUseCase,
   private val buildOperationAlertSummaryUseCase: BuildOperationAlertSummaryUseCase,
   private val detectTemperatureTrendUseCase: DetectTemperatureTrendUseCase,
-  private val buildTemperatureActionSuggestionUseCase: BuildTemperatureActionSuggestionUseCase
+  private val buildTemperatureActionSuggestionUseCase: BuildTemperatureActionSuggestionUseCase,
+  private val calculateTemperatureDeviationIndexUseCase:
+    CalculateTemperatureDeviationIndexUseCase
 ) {
   /**
    * ドメイン情報を画面描画用の状態へ変換する。
@@ -68,6 +71,10 @@ class ProductionMonitorStateFactory(
       targetTemperature = currentStep.targetTemperature,
       temperatureTrend = temperatureTrend
     )
+    val deviationAssessment = calculateTemperatureDeviationIndexUseCase(
+      currentTemperature = currentTemperature,
+      targetTemperature = currentStep.targetTemperature
+    )
 
     return ProductionMonitorUiState(
       currentStep = currentStep,
@@ -89,7 +96,9 @@ class ProductionMonitorStateFactory(
       temperatureTrendLabel = trendLabel,
       temperatureActionTitle = actionSuggestion.title,
       temperatureActionDetail = actionSuggestion.detail,
-      temperatureActionLevel = actionSuggestion.level
+      temperatureActionLevel = actionSuggestion.level,
+      temperatureDeviationIndex = deviationAssessment.deviationIndex,
+      temperatureDeviationLabel = deviationAssessment.deviationLabel
     )
   }
 

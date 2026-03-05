@@ -13,6 +13,7 @@ import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildMonitoringDigestUseCase
 import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
 import com.teaops.shared.domain.usecase.BuildPriorityChecklistUseCase
+import com.teaops.shared.domain.usecase.BuildStabilizationGuideUseCase
 import com.teaops.shared.domain.usecase.BuildTemperatureActionSuggestionUseCase
 import com.teaops.shared.domain.usecase.CalculateTemperatureDeviationIndexUseCase
 import com.teaops.shared.domain.usecase.DetectTemperatureTrendUseCase
@@ -59,6 +60,7 @@ val sharedModule = module {
   factory { BuildMonitoringDigestUseCase() }
   factory { BuildOperationalRiskSnapshotUseCase() }
   factory { BuildPriorityChecklistUseCase() }
+  factory { BuildStabilizationGuideUseCase() }
   factory { BuildTemperatureActionSuggestionUseCase() }
   factory { CalculateTemperatureDeviationIndexUseCase() }
   factory { DetectTemperatureTrendUseCase() }
@@ -72,6 +74,7 @@ val sharedModule = module {
   }
   factory {
     ProductionMonitorStateFactory(
+      get(),
       get(),
       get(),
       get(),

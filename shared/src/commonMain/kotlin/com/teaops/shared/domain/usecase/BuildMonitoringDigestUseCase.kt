@@ -30,7 +30,7 @@ class BuildMonitoringDigestUseCase {
     if (riskBand == RiskBand.MEDIUM || nextCheckLevel == MonitoringCadenceLevel.NORMAL) {
       return MonitoringDigest(
         title = "監視強化モード",
-        detail = "状態変動あり。温度${trendText(temperatureTrend)}を継続監視。",
+        detail = "状態変動あり。温度${trendText(temperatureTrend)} / 遅延=${flagText(isDelayed)}を継続監視。",
         tone = MonitoringDigestTone.WATCH
       )
     }

@@ -150,4 +150,82 @@ class ProductionMonitorStateFactoryTest {
     assertEquals("復帰条件: 厳格", state.stabilizationGuideTitle)
     assertEquals(StabilizationPriority.HIGH, state.stabilizationGuidePriority)
   }
+
+  /**
+   * 工程時間が0の場合でも進捗情報が破綻しないことを確認する。
+   */
+  @Test
+  fun createBuildsCompletedStateWhenDurationIsZero() {
+    val factory = ProductionMonitorStateFactory(
+      evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
+      calculateTemperatureDeviationIndexUseCase =
+        CalculateTemperatureDeviationIndexUseCase(),
+      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
+      buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase(),
+      buildPriorityChecklistUseCase = BuildPriorityChecklistUseCase(),
+      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase(),
+      buildStabilizationGuideUseCase = BuildStabilizationGuideUseCase()
+    )
+    val step = ProcessingStep(
+      id = "cooldown",
+      stepName = "冷却",
+      targetTemperature = 40.0,
+      duration = 0L
+    )
+
+    val state = factory.create(
+      currentStep = step,
+      currentTemperature = 40.0,
+      elapsedSecondsInStep = 0L
+    )
+
+    assertEquals(100, state.progressPercent)
+    assertEquals("完了目安", state.progressLabel)
+    assertFalse(state.isDelayed)
+    assertEquals(0L, state.remainingSeconds)
+    assertEquals("00:00", state.remainingTimeLabel)
+  }
+
+  /**
+   * 経過時間が負の場合でも0として扱われることを確認する。
+   */
+  @Test
+  fun createTreatsNegativeElapsedAsZero() {
+    val factory = ProductionMonitorStateFactory(
+      evaluateTeaQualityUseCase = EvaluateTeaQualityUseCase(),
+      formatDurationUseCase = FormatDurationUseCase(),
+      buildOperationAlertSummaryUseCase = BuildOperationAlertSummaryUseCase(),
+      detectTemperatureTrendUseCase = DetectTemperatureTrendUseCase(),
+      buildTemperatureActionSuggestionUseCase = BuildTemperatureActionSuggestionUseCase(),
+      calculateTemperatureDeviationIndexUseCase =
+        CalculateTemperatureDeviationIndexUseCase(),
+      suggestMonitoringIntervalUseCase = SuggestMonitoringIntervalUseCase(),
+      buildOperationalRiskSnapshotUseCase = BuildOperationalRiskSnapshotUseCase(),
+      buildPriorityChecklistUseCase = BuildPriorityChecklistUseCase(),
+      buildMonitoringDigestUseCase = BuildMonitoringDigestUseCase(),
+      buildStabilizationGuideUseCase = BuildStabilizationGuideUseCase()
+    )
+    val step = ProcessingStep(
+      id = "seijou",
+      stepName = "静置",
+      targetTemperature = 60.0,
+      duration = 120L
+    )
+
+    val state = factory.create(
+      currentStep = step,
+      currentTemperature = 60.0,
+      elapsedSecondsInStep = -10L
+    )
+
+    assertEquals(0, state.progressPercent)
+    assertEquals("準備", state.progressLabel)
+    assertFalse(state.isDelayed)
+    assertEquals(120L, state.remainingSeconds)
+    assertEquals("02:00", state.remainingTimeLabel)
+  }
 }

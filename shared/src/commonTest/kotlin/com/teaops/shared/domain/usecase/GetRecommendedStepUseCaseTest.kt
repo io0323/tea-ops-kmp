@@ -42,6 +42,60 @@ class GetRecommendedStepUseCaseTest {
   }
 
   /**
+   * 収穫時刻より現在時刻が過去でも経過秒数が0として扱われることを確認する。
+   */
+  @Test
+  fun treatsNegativeElapsedAsZeroAndReturnsFirstStep() {
+    val batch = TeaBatch(
+      id = "batch-3",
+      type = "kabuse",
+      weight = 8.0,
+      harvestedAt = 2_000L
+    )
+    val useCase = GetRecommendedStepUseCase(
+      nowProvider = { 1_500L },
+      validateProcessDefinitionUseCase = ValidateProcessDefinitionUseCase()
+    )
+    val processDefinition = listOf(
+      ProcessingStep("s1", "蒸し", 100.0, 60L),
+      ProcessingStep("s2", "冷却", 40.0, 120L)
+    )
+
+    val decision = useCase.evaluate(batch, processDefinition)
+
+    assertEquals(0L, decision.elapsedSecondsFromHarvest)
+    assertNotNull(decision.recommendedStep)
+    assertEquals("s1", decision.recommendedStep.id)
+  }
+
+  /**
+   * 全工程時間を超過した場合は最後の工程が推奨されることを確認する。
+   */
+  @Test
+  fun returnsLastStepWhenElapsedExceedsAllDurations() {
+    val batch = TeaBatch(
+      id = "batch-4",
+      type = "sencha",
+      weight = 15.0,
+      harvestedAt = 1_000L
+    )
+    val useCase = GetRecommendedStepUseCase(
+      nowProvider = { 1_600L },
+      validateProcessDefinitionUseCase = ValidateProcessDefinitionUseCase()
+    )
+    val processDefinition = listOf(
+      ProcessingStep("s1", "殺青", 180.0, 120L),
+      ProcessingStep("s2", "揉捻", 95.0, 180L)
+    )
+
+    val decision = useCase.evaluate(batch, processDefinition)
+
+    assertEquals(600L, decision.elapsedSecondsFromHarvest)
+    assertNotNull(decision.recommendedStep)
+    assertEquals("s2", decision.recommendedStep.id)
+  }
+
+  /**
    * 無効工程しかない場合は推奨工程がnullになることを確認する。
    */
   @Test

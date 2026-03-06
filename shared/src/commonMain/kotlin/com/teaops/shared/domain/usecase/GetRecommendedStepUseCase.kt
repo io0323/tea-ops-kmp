@@ -22,6 +22,9 @@ class GetRecommendedStepUseCase(
 
   /**
    * 推奨工程と定義の検証結果をまとめて返す。
+   *
+   * - 収穫時刻より現在時刻が過去の場合でも、経過秒数は0として扱う。
+   * - 無効な工程（名称空・非正の時間・温度異常）は内部で除外してから判定する。
    */
   fun evaluate(
     batch: TeaBatch,

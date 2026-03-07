@@ -96,6 +96,85 @@ class GetRecommendedStepUseCaseTest {
   }
 
   /**
+   * 経過時間が最初の工程時間とちょうど一致する場合に最初の工程が推奨されることを確認する。
+   */
+  @Test
+  fun returnsFirstStepWhenElapsedExactlyMatchesFirstDuration() {
+    val batch = TeaBatch(
+      id = "batch-5",
+      type = "sencha",
+      weight = 10.0,
+      harvestedAt = 1_000L
+    )
+    val useCase = GetRecommendedStepUseCase(
+      nowProvider = { 1_120L },
+      validateProcessDefinitionUseCase = ValidateProcessDefinitionUseCase()
+    )
+    val processDefinition = listOf(
+      ProcessingStep("s1", "殺青", 180.0, 120L),
+      ProcessingStep("s2", "揉捻", 95.0, 180L)
+    )
+
+    val decision = useCase.evaluate(batch, processDefinition)
+
+    assertEquals(120L, decision.elapsedSecondsFromHarvest)
+    assertNotNull(decision.recommendedStep)
+    assertEquals("s1", decision.recommendedStep.id)
+  }
+
+  /**
+   * 無効工程を除外した上で推奨工程を判定しつつ、検証結果は保持されることを確認する。
+   */
+  @Test
+  fun skipsInvalidStepsButKeepsValidationIssues() {
+    val batch = TeaBatch(
+      id = "batch-6",
+      type = "gyokuro",
+      weight = 5.0,
+      harvestedAt = 0L
+    )
+    val useCase = GetRecommendedStepUseCase(
+      nowProvider = { 50L },
+      validateProcessDefinitionUseCase = ValidateProcessDefinitionUseCase()
+    )
+    val processDefinition = listOf(
+      ProcessingStep(
+        id = "invalid",
+        stepName = "",
+        targetTemperature = -10.0,
+        duration = 0L
+      ),
+      ProcessingStep(
+        id = "valid",
+        stepName = "仕上げ",
+        targetTemperature = 80.0,
+        duration = 100L
+      )
+    )
+
+    val decision = useCase.evaluate(batch, processDefinition)
+
+    assertNotNull(decision.recommendedStep)
+    assertEquals("valid", decision.recommendedStep.id)
+    assertTrue(decision.validationIssues.isNotEmpty())
+    assertTrue(
+      decision.validationIssues.any {
+        it.type == ProcessDefinitionIssueType.EMPTY_STEP_NAME
+      }
+    )
+    assertTrue(
+      decision.validationIssues.any {
+        it.type == ProcessDefinitionIssueType.NON_POSITIVE_DURATION
+      }
+    )
+    assertTrue(
+      decision.validationIssues.any {
+        it.type == ProcessDefinitionIssueType.INVALID_TEMPERATURE_RANGE
+      }
+    )
+  }
+
+  /**
    * 無効工程しかない場合は推奨工程がnullになることを確認する。
    */
   @Test

@@ -5,6 +5,7 @@ import com.teaops.shared.domain.entity.MonitoringDigest
 import com.teaops.shared.domain.entity.MonitoringDigestTone
 import com.teaops.shared.domain.entity.RiskBand
 import com.teaops.shared.domain.entity.TemperatureTrend
+import com.teaops.shared.domain.entity.toJapaneseLabel
 
 /**
  * 現在の運用状態を短文で要約するユースケース。
@@ -22,7 +23,7 @@ class BuildMonitoringDigestUseCase {
     if (riskBand == RiskBand.HIGH || nextCheckLevel == MonitoringCadenceLevel.FAST) {
       return MonitoringDigest(
         title = "即応モード",
-        detail = "高リスク状態。温度${trendText(temperatureTrend)} / 遅延=${flagText(isDelayed)}",
+        detail = "高リスク状態。温度${temperatureTrend.toJapaneseLabel()} / 遅延=${flagText(isDelayed)}",
         tone = MonitoringDigestTone.ALERT
       )
     }
@@ -30,7 +31,7 @@ class BuildMonitoringDigestUseCase {
     if (riskBand == RiskBand.MEDIUM || nextCheckLevel == MonitoringCadenceLevel.NORMAL) {
       return MonitoringDigest(
         title = "監視強化モード",
-        detail = "状態変動あり。温度${trendText(temperatureTrend)} / 遅延=${flagText(isDelayed)}を継続監視。",
+        detail = "状態変動あり。温度${temperatureTrend.toJapaneseLabel()} / 遅延=${flagText(isDelayed)}を継続監視。",
         tone = MonitoringDigestTone.WATCH
       )
     }
@@ -40,17 +41,6 @@ class BuildMonitoringDigestUseCase {
       detail = "主要指標は安定。通常監視を継続。",
       tone = MonitoringDigestTone.CALM
     )
-  }
-
-  /**
-   * 温度トレンドを文言に変換する。
-   */
-  private fun trendText(trend: TemperatureTrend): String {
-    return when (trend) {
-      TemperatureTrend.RISING -> "上昇"
-      TemperatureTrend.FALLING -> "下降"
-      TemperatureTrend.STABLE -> "安定"
-    }
   }
 
   /**

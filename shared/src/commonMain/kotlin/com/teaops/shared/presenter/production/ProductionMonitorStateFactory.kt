@@ -1,9 +1,10 @@
 package com.teaops.shared.presenter.production
 
-import com.teaops.shared.domain.entity.ProcessingStep
-import com.teaops.shared.domain.entity.TemperatureTrend
 import com.teaops.shared.domain.entity.ChecklistActionLevel
+import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.StabilizationPriority
+import com.teaops.shared.domain.entity.TemperatureTrend
+import com.teaops.shared.domain.entity.toJapaneseLabel
 import com.teaops.shared.domain.usecase.BuildOperationAlertSummaryUseCase
 import com.teaops.shared.domain.usecase.BuildMonitoringDigestUseCase
 import com.teaops.shared.domain.usecase.BuildOperationalRiskSnapshotUseCase
@@ -73,11 +74,7 @@ class ProductionMonitorStateFactory(
       previousTemperature = previousTemperature,
       currentTemperature = currentTemperature
     )
-    val trendLabel = when (temperatureTrend) {
-      TemperatureTrend.RISING -> "上昇"
-      TemperatureTrend.FALLING -> "下降"
-      TemperatureTrend.STABLE -> "安定"
-    }
+    val trendLabel = temperatureTrend.toJapaneseLabel()
     val actionSuggestion = buildTemperatureActionSuggestionUseCase(
       currentTemperature = currentTemperature,
       targetTemperature = currentStep.targetTemperature,

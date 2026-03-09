@@ -20,6 +20,17 @@ class FormatDurationUseCaseTest {
   }
 
   /**
+   * 負の値は0秒として扱われることを確認する。
+   */
+  @Test
+  fun coercesNegativeValueToZero() {
+    val useCase = FormatDurationUseCase()
+
+    assertEquals("00:00", useCase(-1L))
+    assertEquals("00:00", useCase(-120L))
+  }
+
+  /**
    * 1時間以上の値が `HH:MM:SS` で整形されることを確認する。
    */
   @Test

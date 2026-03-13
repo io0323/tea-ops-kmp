@@ -55,4 +55,27 @@ class EvaluateTeaQualityUseCaseTest {
     assertEquals(AlertLevel.CRITICAL, result.alertLevel)
     assertTrue(result.score < 55)
   }
+  /**
+   * 温度と進捗から品質スコアを算出するユースケース。
+   */
+  @Test
+  fun returnsCautionWhenScoreIsMedium() {
+    val useCase = EvaluateTeaQualityUseCase()
+    val step = ProcessingStep(
+      id = "3",
+      stepName = "発酵",
+      targetTemperature = 100.0,
+      duration = 60
+    )
+
+    // Gap: 15.0 -> Penalty: 33. Progress is fine. Score will be 67.
+    val result = useCase(
+      step = step,
+      currentTemperature = 115.0,
+      elapsedSecondsInStep = 30
+    )
+
+    assertEquals(AlertLevel.CAUTION, result.alertLevel)
+    assertTrue(result.score in 55..74)
+  }
 }

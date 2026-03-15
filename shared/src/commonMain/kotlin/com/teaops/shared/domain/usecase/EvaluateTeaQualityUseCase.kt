@@ -56,7 +56,7 @@ class EvaluateTeaQualityUseCase {
     val gapText = roundedGap.toString()
     return when (level) {
       AlertLevel.NORMAL -> "$stepName は安定中（温度差 ${gapText}°C）"
-      AlertLevel.CAUTION -> "温度調整推奨: 目標との差 ${gapText}°C"
+      AlertLevel.CAUTION -> "$stepName の温度調整推奨: 目標との差 ${gapText}°C"
       AlertLevel.CRITICAL -> "要対応: $stepName の品質低下リスク高"
     }
   }

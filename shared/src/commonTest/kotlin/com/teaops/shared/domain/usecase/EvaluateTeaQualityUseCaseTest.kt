@@ -56,7 +56,7 @@ class EvaluateTeaQualityUseCaseTest {
     assertTrue(result.score < 55)
   }
   /**
-   * 温度と進捗から品質スコアを算出するユースケース。
+   * スコアが中程度の場合に CAUTION と判定されることを確認する。
    */
   @Test
   fun returnsCautionWhenScoreIsMedium() {

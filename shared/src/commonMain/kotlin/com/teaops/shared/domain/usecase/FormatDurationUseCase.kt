@@ -9,15 +9,20 @@ class FormatDurationUseCase {
    */
   operator fun invoke(seconds: Long): String {
     val safeSeconds = seconds.coerceAtLeast(0L)
-    val hours = safeSeconds / 3600L
-    val minutes = (safeSeconds % 3600L) / 60L
-    val remainSeconds = safeSeconds % 60L
+    val hours = safeSeconds / SECONDS_PER_HOUR
+    val minutes = (safeSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+    val remainSeconds = safeSeconds % SECONDS_PER_MINUTE
 
     return if (hours > 0L) {
       "${hours.pad2()}:${minutes.pad2()}:${remainSeconds.pad2()}"
     } else {
       "${minutes.pad2()}:${remainSeconds.pad2()}"
     }
+  }
+
+  companion object {
+    private const val SECONDS_PER_HOUR = 3600L
+    private const val SECONDS_PER_MINUTE = 60L
   }
 }
 

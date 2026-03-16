@@ -21,19 +21,19 @@ class EvaluateTeaQualityUseCase {
     val progressRatio = boundedElapsed.toDouble() / duration.toDouble()
     val tempGap = kotlin.math.abs(currentTemperature - step.targetTemperature)
 
-    val tempPenalty = (tempGap * 2.2).toInt().coerceAtMost(45)
+    val tempPenalty = (tempGap * TEMP_GAP_PENALTY_MULTIPLIER).toInt().coerceAtMost(MAX_TEMP_PENALTY)
     val progressPenalty = when {
-      progressRatio < 0.15 -> 8
-      progressRatio > 1.25 -> 20
-      progressRatio > 1.0 -> 10
+      progressRatio < PROGRESS_RATIO_LOW -> PROGRESS_PENALTY_LOW
+      progressRatio > PROGRESS_RATIO_HIGH -> PROGRESS_PENALTY_HIGH
+      progressRatio > PROGRESS_RATIO_MEDIUM -> PROGRESS_PENALTY_MEDIUM
       else -> 0
     }
 
-    val rawScore = 100 - tempPenalty - progressPenalty
-    val score = rawScore.coerceIn(0, 100)
+    val rawScore = MAX_SCORE - tempPenalty - progressPenalty
+    val score = rawScore.coerceIn(0, MAX_SCORE)
     val alertLevel = when {
-      score < 55 -> AlertLevel.CRITICAL
-      score < 75 -> AlertLevel.CAUTION
+      score < CRITICAL_SCORE_THRESHOLD -> AlertLevel.CRITICAL
+      score < CAUTION_SCORE_THRESHOLD -> AlertLevel.CAUTION
       else -> AlertLevel.NORMAL
     }
 
@@ -59,5 +59,19 @@ class EvaluateTeaQualityUseCase {
       AlertLevel.CAUTION -> "$stepName の温度調整推奨: 目標との差 ${gapText}°C"
       AlertLevel.CRITICAL -> "要対応: $stepName の品質低下リスク高"
     }
+  }
+
+  companion object {
+    private const val TEMP_GAP_PENALTY_MULTIPLIER = 2.2
+    private const val MAX_TEMP_PENALTY = 45
+    private const val PROGRESS_RATIO_LOW = 0.15
+    private const val PROGRESS_RATIO_MEDIUM = 1.0
+    private const val PROGRESS_RATIO_HIGH = 1.25
+    private const val PROGRESS_PENALTY_LOW = 8
+    private const val PROGRESS_PENALTY_MEDIUM = 10
+    private const val PROGRESS_PENALTY_HIGH = 20
+    private const val MAX_SCORE = 100
+    private const val CRITICAL_SCORE_THRESHOLD = 55
+    private const val CAUTION_SCORE_THRESHOLD = 75
   }
 }

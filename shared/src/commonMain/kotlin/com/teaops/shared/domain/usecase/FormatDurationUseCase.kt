@@ -30,9 +30,5 @@ class FormatDurationUseCase {
  * 2桁ゼロ埋め文字列へ変換する。
  */
 private fun Long.pad2(): String {
-  return if (this < 10L) {
-    "0$this"
-  } else {
-    this.toString()
-  }
+  return this.toString().padStart(2, '0')
 }

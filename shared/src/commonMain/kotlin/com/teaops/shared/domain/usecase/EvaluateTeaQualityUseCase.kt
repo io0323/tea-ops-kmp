@@ -52,7 +52,7 @@ class EvaluateTeaQualityUseCase {
     stepName: String,
     tempGap: Double
   ): String {
-    val roundedGap = (tempGap * 10.0).toInt() / 10.0
+    val roundedGap = tempGap.roundToOneDecimal()
     val gapText = roundedGap.toString()
     return when (level) {
       AlertLevel.NORMAL -> "$stepName は安定中（温度差 ${gapText}°C）"
@@ -74,4 +74,11 @@ class EvaluateTeaQualityUseCase {
     private const val CRITICAL_SCORE_THRESHOLD = 55
     private const val CAUTION_SCORE_THRESHOLD = 75
   }
+}
+
+/**
+ * 誤差丸めのため小数第1位までに丸める。
+ */
+private fun Double.roundToOneDecimal(): Double {
+  return (this * 10.0).toInt() / 10.0
 }

@@ -3,6 +3,7 @@ package com.teaops.shared.domain.usecase
 import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.QualityAssessment
+import kotlin.math.round
 
 /**
  * 温度と進捗から品質スコアを算出するユースケース。
@@ -80,5 +81,5 @@ class EvaluateTeaQualityUseCase {
  * 誤差丸めのため小数第1位までに丸める。
  */
 private fun Double.roundToOneDecimal(): Double {
-  return (this * 10.0).toInt() / 10.0
+  return round(this * 10.0) / 10.0
 }

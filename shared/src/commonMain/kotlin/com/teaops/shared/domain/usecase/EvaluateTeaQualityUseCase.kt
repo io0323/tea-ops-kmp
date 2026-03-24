@@ -1,6 +1,7 @@
 package com.teaops.shared.domain.usecase
 
 import com.teaops.shared.domain.entity.AlertLevel
+import com.teaops.shared.domain.util.roundToOneDecimal
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.QualityAssessment
 import kotlin.math.round
@@ -75,11 +76,4 @@ class EvaluateTeaQualityUseCase {
     private const val CRITICAL_SCORE_THRESHOLD = 55
     private const val CAUTION_SCORE_THRESHOLD = 75
   }
-}
-
-/**
- * 誤差丸めのため小数第1位までに丸める。
- */
-private fun Double.roundToOneDecimal(): Double {
-  return round(this * 10.0) / 10.0
 }

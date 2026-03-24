@@ -1,5 +1,7 @@
 package com.teaops.shared.domain.usecase
 
+import com.teaops.shared.domain.util.pad2
+
 /**
  * 秒数を運用表示向けの時刻文字列へ変換するユースケース。
  */
@@ -24,11 +26,4 @@ class FormatDurationUseCase {
     private const val SECONDS_PER_HOUR = 3600L
     private const val SECONDS_PER_MINUTE = 60L
   }
-}
-
-/**
- * 2桁ゼロ埋め文字列へ変換する。
- */
-private fun Long.pad2(): String {
-  return this.toString().padStart(2, '0')
 }

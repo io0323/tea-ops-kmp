@@ -4,7 +4,7 @@ import com.teaops.shared.domain.entity.AlertLevel
 import com.teaops.shared.domain.util.roundToOneDecimal
 import com.teaops.shared.domain.entity.ProcessingStep
 import com.teaops.shared.domain.entity.QualityAssessment
-import kotlin.math.round
+import kotlin.math.abs
 
 /**
  * 温度と進捗から品質スコアを算出するユースケース。
@@ -21,7 +21,7 @@ class EvaluateTeaQualityUseCase {
     val boundedElapsed = elapsedSecondsInStep.coerceAtLeast(0L)
     val duration = step.duration.coerceAtLeast(1L)
     val progressRatio = boundedElapsed.toDouble() / duration.toDouble()
-    val tempGap = kotlin.math.abs(currentTemperature - step.targetTemperature)
+    val tempGap = abs(currentTemperature - step.targetTemperature)
 
     val tempPenalty = (tempGap * TEMP_GAP_PENALTY_MULTIPLIER).toInt().coerceAtMost(MAX_TEMP_PENALTY)
     val progressPenalty = when {
